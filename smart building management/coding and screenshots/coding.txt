@@ -1,0 +1,63 @@
+#define GAS_SENSOR A0
+#define FLAME_SENSOR 4
+#define BUZZER 11       // Passive buzzer pin
+#define RED_LED 13      // Red LED pin (alarm)
+#define GREEN_LED 12    // Green LED pin (normal)
+
+int gasThreshold = 400;    // Gas threshold for detection
+unsigned long lastDetectionTime = 0;  // Timer to manage danger reset
+unsigned long dangerDuration = 5000;   // Time before resetting danger (5 seconds)
+bool danger = false;
+
+void setup() {
+  pinMode(GAS_SENSOR, INPUT);
+  pinMode(FLAME_SENSOR, INPUT_PULLUP);
+  pinMode(BUZZER, OUTPUT);   // Set buzzer pin as output
+  pinMode(RED_LED, OUTPUT);
+  pinMode(GREEN_LED, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int gasLevel = analogRead(GAS_SENSOR);  // Read gas sensor value
+  int flameDetected = digitalRead(FLAME_SENSOR);  // Read flame sensor value
+  
+  bool currentDanger = false;  // Reset current danger flag
+
+  // Gas leak detection
+  if (gasLevel > gasThreshold) {
+    Serial.println("⚠️ Gas Leak Detected!");
+    currentDanger = true;
+  }
+
+  // Fire detection
+  if (flameDetected == LOW) {  // Flame detected (LOW state)
+    Serial.println("🔥 Fire Detected!");
+    currentDanger = true;
+  }
+
+  // Set persistent danger flag
+  if (currentDanger) {
+    danger = true;
+    lastDetectionTime = millis();  // Reset the timer when danger is detected
+  }
+
+  // Check if danger persists beyond a certain duration
+  if (danger && millis() - lastDetectionTime > dangerDuration) {
+    danger = false;  // Reset danger if no new detection after dangerDuration
+  }
+
+  // Alarm system based on danger detection
+  if (danger) {
+    tone(BUZZER, 1000);     // Play sound on the buzzer (1000 Hz tone)
+    digitalWrite(RED_LED, HIGH);  // Turn on red LED (alarm)
+    digitalWrite(GREEN_LED, LOW); // Turn off green LED
+  } else {
+    noTone(BUZZER);            // Stop buzzer sound
+    digitalWrite(RED_LED, LOW); // Turn off red LED
+    digitalWrite(GREEN_LED, HIGH); // Turn on green LED (normal)
+    Serial.println("✅ All Clear");
+  }
+
+  delay(1000);  // Wait for 1 second before the next reading
+}
