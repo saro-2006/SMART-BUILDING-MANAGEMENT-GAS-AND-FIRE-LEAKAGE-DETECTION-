@@ -61,7 +61,7 @@ A	summary of the system’s current capabilities, including real-time alerting, 
 IoT data transmission, and seamless ERP integration for real-time incident tracking.
 Outcome:
 A final, comprehensive report that outlines the entire project journey from inception to completion, serving as a reference for future upgrades or deployments.
- 
+
 5.	Project Handover and Future Works Overview
 This section outlines the official handover of the Smart Building Management System and provides recommendations for future improvements and scalability.
 Handover Details:
